@@ -1,0 +1,11 @@
+# Eski tasarım arşivleri ve WordPress blok denemeleri (yerelde kalır)
+v1/
+v2/
+v3/
+v5-editoryal/
+build_v4.py
+wpblocks.py
+wordpress-ana-sayfa.html
+NASIL-YUKLENIR.md
+__pycache__/
+.vercel

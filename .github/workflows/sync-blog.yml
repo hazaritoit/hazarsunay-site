@@ -1,0 +1,38 @@
+# WordPress'teki blog yazılarını her gün siteye çeker.
+# Yeni/değişen yazı varsa commit atar; Vercel bu commit ile siteyi otomatik yeniden yayınlar.
+# Elle çalıştırmak için: GitHub > Actions > "Sync blog from WordPress" > Run workflow
+name: Sync blog from WordPress
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # her gün 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch posts and rebuild pages
+        run: |
+          python tools/fetch_posts.py
+          python tools/make_sprite.py
+          python tools/build_blog.py
+          python tools/inject_sprite.py
+      - name: Commit if anything changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "blog-sync-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add -A
+            git commit -m "Blog: WordPress'ten güncellendi"
+            git push
+          else
+            echo "Değişiklik yok."
+          fi
